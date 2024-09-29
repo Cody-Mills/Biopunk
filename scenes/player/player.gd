@@ -1,12 +1,17 @@
 extends CharacterBody3D
 
+#MovementSpeed
 var speed
 const SPRINT_SPEED = WALK_SPEED * 1.4
 const WALK_SPEED = 5.0
+
+#Jumping
 const JUMP_VELOCITY = 4.5
 var jump_count = 1
 var max_jumps = 1#scaleable
 var jump_available : bool = true
+#var was_on_floor : bool = true #just walked off
+
 const SENSITIVITY = 0.004
 
 @onready var head: Node3D = %Head
@@ -18,8 +23,17 @@ const BOB_FREQ = 2.0
 const BOB_AMP = 0.08
 var t_bob = 0.0
 
-#Coyote Time
-@onready var coyote_time: Timer = %CoyoteTime
+#Player Stats
+const MELEE_KNOCKBACK = 1000
+
+#Wanted features 
+#-wall jumping(different basis than normal jumping cuz instead of jumping up i wanna kick off of 
+# a wall and be send the other direction
+#-Sliding
+#-Bunny Hopping
+
+#Coyote Time (DO LATER BORING ATM)
+#@onready var coyote_time: Timer = %CoyoteTime
 
 
 func _ready() -> void:
@@ -34,16 +48,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 
 func _physics_process(delta: float) -> void:
-	# Add the gravity.
+	# Handle jump.
 	if !is_on_floor():
 		velocity += get_gravity() * delta
-		!jump_available
-	else:
-		jump_available
+		jump_available = false
+	if is_on_floor():
+		jump_available = true
 		jump_count = max_jumps
-	# Handle jump.
+		
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 		_jump()
+		
+	if is_on_wall_only() && Input.is_action_just_pressed("ui_accept"):
+		print("wall jump")
 	
 	#Sprinting
 	if Input.is_action_just_pressed("ui_sprint") && is_on_floor():
@@ -51,8 +68,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		speed = WALK_SPEED
 	
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
+	
+	#Movement Inputs
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if is_on_floor():
@@ -72,13 +89,15 @@ func _physics_process(delta: float) -> void:
 	camera_3d.transform.origin = _headbob(t_bob)
 	
 	move_and_slide()
+	
 
 func _headbob(time) -> Vector3:
 	var pos  = Vector3.ZERO
 	pos.y = sin(time * BOB_FREQ) * BOB_AMP
 	pos.x = sin(time * BOB_FREQ / 2) * BOB_AMP
 	return pos
-	
+
+
 func _jump():
 	if jump_count != 0:
 		velocity.y = JUMP_VELOCITY
