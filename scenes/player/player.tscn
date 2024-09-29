@@ -16,6 +16,8 @@ mesh = SubResource("CapsuleMesh_bbh4d")
 shape = SubResource("CapsuleShape3D_c8byp")
 
 [node name="Head" type="Node3D" parent="."]
+unique_name_in_owner = true
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.580689, -0.490046)

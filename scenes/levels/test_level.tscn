@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dh7a01ifnaspv"]
+[gd_scene load_steps=8 format=3 uid="uid://dh7a01ifnaspv"]
 
 [ext_resource type="PackedScene" uid="uid://c0e88pq05v2d2" path="res://scenes/player/player.tscn" id="1_if18i"]
 
@@ -15,6 +15,12 @@ sky = SubResource("Sky_0eqnc")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="BoxMesh" id="BoxMesh_jkc5x"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_y7uw8"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hu8jl"]
+
 [node name="Test_Level" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -26,6 +32,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.8177, 0)
 
-[node name="CSGBox3D" type="CSGBox3D" parent="."]
+[node name="Floor" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00251719, 0)
+use_collision = true
 size = Vector3(37.4912, 0.001, 42.0781)
+
+[node name="Floor Boxes" type="Node3D" parent="."]
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="Floor Boxes"]
+transform = Transform3D(4.60278, 0, 0, 0, 1, 0, 0, 0, 9.07989, 10.3301, 0.42438, 10.3372)
+use_collision = true
+mesh = SubResource("BoxMesh_jkc5x")
+
+[node name="CSGMesh3D2" type="CSGMesh3D" parent="Floor Boxes"]
+transform = Transform3D(6.65245, 0, 0, 0, 7.53671, 0, 0, 0, 7.6793, 1.77592, 0, 9.54459)
+use_collision = true
+mesh = SubResource("BoxMesh_y7uw8")
+
+[node name="CSGMesh3D3" type="CSGMesh3D" parent="Floor Boxes"]
+transform = Transform3D(4.89793, 0, 0, 0, 13.7959, 0, 0, 0, 7.42211, -6.85721, 0, 10.1977)
+use_collision = true
+mesh = SubResource("BoxMesh_hu8jl")
