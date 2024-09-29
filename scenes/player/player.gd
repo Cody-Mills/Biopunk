@@ -1,8 +1,12 @@
 extends CharacterBody3D
 
-
-const SPEED = 5.0
+var speed
+const SPRINT_SPEED = WALK_SPEED * 1.4
+const WALK_SPEED = 5.0
 const JUMP_VELOCITY = 4.5
+var jump_count = 1
+var max_jumps = 1#scaleable
+var jump_available : bool = true
 const SENSITIVITY = 0.004
 
 @onready var head: Node3D = %Head
@@ -13,6 +17,10 @@ const SENSITIVITY = 0.004
 const BOB_FREQ = 2.0
 const BOB_AMP = 0.08
 var t_bob = 0.0
+
+#Coyote Time
+@onready var coyote_time: Timer = %CoyoteTime
+
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -27,27 +35,42 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
-	if not is_on_floor():
+	if !is_on_floor():
 		velocity += get_gravity() * delta
-
+		!jump_available
+	else:
+		jump_available
+		jump_count = max_jumps
 	# Handle jump.
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-
+		_jump()
+	
+	#Sprinting
+	if Input.is_action_just_pressed("ui_sprint") && is_on_floor():
+		speed = SPRINT_SPEED
+	else:
+		speed = WALK_SPEED
+	
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
-	else:
-		velocity.x = 0.0
-		velocity.z = 0.0
+	if is_on_floor():
+		if direction:
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
+		else:
+			#stopping mid air
+			velocity.x = lerp(velocity.x, direction.x * speed, delta * 7.0)
+			velocity.z = lerp(velocity.z, direction.z * speed, delta * 7.0)
+	else:#need to add bhopping
+		velocity.x = lerp(velocity.x, direction.x * speed, delta * 2.0)
+		velocity.z = lerp(velocity.z, direction.z * speed, delta * 2.0)
 	
 	#Head Bobbing
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera_3d.transform.origin = _headbob(t_bob)
+	
 	move_and_slide()
 
 func _headbob(time) -> Vector3:
@@ -56,3 +79,9 @@ func _headbob(time) -> Vector3:
 	pos.x = sin(time * BOB_FREQ / 2) * BOB_AMP
 	return pos
 	
+func _jump():
+	if jump_count != 0:
+		velocity.y = JUMP_VELOCITY
+		jump_count -= 1
+	else:
+		jump_available = false
