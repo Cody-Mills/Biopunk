@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cit77svjibq2o"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_l3o0y"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_olsqo"]
+albedo_color = Color(1, 1, 0, 1)
+
+[node name="Tall Wall" type="CSGMesh3D"]
+transform = Transform3D(1, 0, 0, 0, 5.86507, 0, 0, 0, 4.10023, 0, 0, 0)
+use_collision = true
+mesh = SubResource("BoxMesh_l3o0y")
+material = SubResource("StandardMaterial3D_olsqo")

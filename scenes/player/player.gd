@@ -23,12 +23,10 @@ const BOB_FREQ = 2.0
 const BOB_AMP = 0.08
 var t_bob = 0.0
 
-#Player Stats
-const MELEE_KNOCKBACK = 1000
 
 #Wanted features 
 #-wall jumping(different basis than normal jumping cuz instead of jumping up i wanna kick off of 
-# a wall and be send the other direction
+# a wall and be send the other direction (need a wall made for jumping off of)
 #-Sliding
 #-Bunny Hopping
 
@@ -67,7 +65,6 @@ func _physics_process(delta: float) -> void:
 		speed = SPRINT_SPEED
 	else:
 		speed = WALK_SPEED
-	
 	
 	#Movement Inputs
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")

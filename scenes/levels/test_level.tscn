@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://dh7a01ifnaspv"]
+[gd_scene load_steps=13 format=3 uid="uid://dh7a01ifnaspv"]
 
 [ext_resource type="PackedScene" uid="uid://c0e88pq05v2d2" path="res://scenes/player/player.tscn" id="1_if18i"]
+[ext_resource type="PackedScene" uid="uid://cit77svjibq2o" path="res://scenes/objects/tall_wall.tscn" id="2_aiu3g"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1ayuy"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -68,3 +69,9 @@ transform = Transform3D(4.89793, 0, 0, 0, 13.7959, 0, 0, 0, 7.42211, -6.85721, 0
 use_collision = true
 mesh = SubResource("BoxMesh_hu8jl")
 material = SubResource("StandardMaterial3D_5i6l7")
+
+[node name="Tall Wall" parent="." instance=ExtResource("2_aiu3g")]
+transform = Transform3D(1, 0, 0, 0, 13.2448, 0, 0, 0, 4.10023, -13.8676, 6.70229, -13.2254)
+
+[node name="Tall Wall2" parent="." instance=ExtResource("2_aiu3g")]
+transform = Transform3D(1, 0, 0, 0, 13.2448, 0, 0, 0, 4.10023, -7.38512, 6.70229, -13.2254)
