@@ -1,7 +1,7 @@
 [gd_scene load_steps=13 format=3 uid="uid://dh7a01ifnaspv"]
 
-[ext_resource type="PackedScene" uid="uid://c0e88pq05v2d2" path="res://scenes/player/player.tscn" id="1_if18i"]
-[ext_resource type="PackedScene" uid="uid://cit77svjibq2o" path="res://scenes/objects/tall_wall.tscn" id="2_aiu3g"]
+[ext_resource type="PackedScene" uid="uid://c0e88pq05v2d2" path="res://scenes/player/player.tscn" id="1_yd11q"]
+[ext_resource type="PackedScene" uid="uid://cit77svjibq2o" path="res://scenes/objects/tall_wall.tscn" id="2_dmkct"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1ayuy"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -38,7 +38,7 @@ albedo_color = Color(0, 1, 0, 1)
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_s7nmt")
 
-[node name="Player" parent="." instance=ExtResource("1_if18i")]
+[node name="Player" parent="." instance=ExtResource("1_yd11q")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
@@ -70,8 +70,8 @@ use_collision = true
 mesh = SubResource("BoxMesh_hu8jl")
 material = SubResource("StandardMaterial3D_5i6l7")
 
-[node name="Tall Wall" parent="." instance=ExtResource("2_aiu3g")]
+[node name="Tall Wall" parent="." instance=ExtResource("2_dmkct")]
 transform = Transform3D(1, 0, 0, 0, 13.2448, 0, 0, 0, 4.10023, -13.8676, 6.70229, -13.2254)
 
-[node name="Tall Wall2" parent="." instance=ExtResource("2_aiu3g")]
+[node name="Tall Wall2" parent="." instance=ExtResource("2_dmkct")]
 transform = Transform3D(1, 0, 0, 0, 13.2448, 0, 0, 0, 4.10023, -7.38512, 6.70229, -13.2254)
