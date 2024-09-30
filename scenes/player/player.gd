@@ -3,7 +3,9 @@ extends CharacterBody3D
 #MovementSpeed
 var speed
 const SPRINT_SPEED = WALK_SPEED * 1.4
+var is_sprinting : bool = false
 const WALK_SPEED = 5.0
+const CROUCH_SPEED = WALK_SPEED * 0.6
 
 #Jumping
 const JUMP_VELOCITY = 4.5
@@ -27,6 +29,8 @@ var t_bob = 0.0
 #Wanted features 
 #-wall jumping(different basis than normal jumping cuz instead of jumping up i wanna kick off of 
 # a wall and be send the other direction (need a wall made for jumping off of)
+# could either do it by making a actual wall jump or by kicking, if kicking i could use the get function
+# method go recive how much knockback there should be so i can use it for enemies, walls and jumping walls
 #-Sliding
 #-Bunny Hopping
 
@@ -46,6 +50,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 
 func _physics_process(delta: float) -> void:
+	print(speed)
 	# Handle jump.
 	if !is_on_floor():
 		velocity += get_gravity() * delta
@@ -61,10 +66,21 @@ func _physics_process(delta: float) -> void:
 		print("wall jump")
 	
 	#Sprinting
-	if Input.is_action_just_pressed("ui_sprint") && is_on_floor():
+	if Input.is_action_pressed("ui_sprint") && is_on_floor():
 		speed = SPRINT_SPEED
+		is_sprinting = true
 	else:
 		speed = WALK_SPEED
+		is_sprinting = false
+	
+	if Input.is_action_pressed("ui_crouch") && !is_sprinting:
+		$CollisionShape3D.scale = Vector3(1, 0.5, 1)
+		speed = CROUCH_SPEED
+	if Input.is_action_just_released("ui_crouch") && !is_sprinting:
+		$CollisionShape3D.scale = Vector3(1, 1, 1)
+		speed = WALK_SPEED
+	if Input.is_action_pressed("ui_crouch") && is_sprinting:
+		pass #slide
 	
 	#Movement Inputs
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")

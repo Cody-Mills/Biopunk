@@ -10,6 +10,7 @@
 script = ExtResource("1_m0qnd")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("CapsuleMesh_bbh4d")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
