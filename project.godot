@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="FPS Game"
+config/name="Biopunk"
 run/main_scene="res://scenes/levels/test_level/test_level.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 
@@ -18,6 +18,15 @@ config/features=PackedStringArray("4.3", "Forward Plus")
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+
+[file_customization]
+
+folder_colors={
+"res://models/": "purple",
+"res://resources/": "yellow",
+"res://scenes/": "red",
+"res://scripts/": "blue"
+}
 
 [input]
 
