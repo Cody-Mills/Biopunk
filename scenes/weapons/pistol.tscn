@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://1wd26ex8r351"]
+
+[node name="Pistol" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00834769, -0.00687152, -0.00112075)
+metadata/GunType = &"Pistol"
+
+[node name="Model" type="Node3D" parent="."]
+transform = Transform3D(-3.98144e-09, 0, 0.155968, 0, 0.418419, 0, -0.0910848, 0, -6.81759e-09, 0, 0, 0)
+
+[node name="Top" type="CSGBox3D" parent="Model"]
+transform = Transform3D(4.48614, 0, 0, 0, 0.50478, 0, 0, 0, 1.0109, 1.42056, 0.349162, 0)
+
+[node name="Handle" type="CSGBox3D" parent="Model"]
+
+[node name="FirePostion" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.348108, 0.128902, 0)

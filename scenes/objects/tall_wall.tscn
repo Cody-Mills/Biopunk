@@ -10,3 +10,4 @@ transform = Transform3D(1, 0, 0, 0, 5.86507, 0, 0, 0, 4.10023, 0, 0, 0)
 use_collision = true
 mesh = SubResource("BoxMesh_l3o0y")
 material = SubResource("StandardMaterial3D_olsqo")
+metadata/is_jumpable = true
