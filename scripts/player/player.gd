@@ -83,16 +83,15 @@ func _physics_process(delta: float) -> void:
 		$CollisionShape3D.scale = Vector3(1, 1, 1)
 		speed = WALK_SPEED
 		is_crouching = false
-	#Sliding
-	if Input.is_action_pressed("ui_crouch") && is_sprinting :
-		$CollisionShape3D.scale = Vector3(1, 0.3, 1)
-		speed = SLIDE_SPEED
-		is_sliding = true
-	if Input.is_action_just_released("ui_crouch") && is_sliding:
-		is_sliding = false
-		speed = WALK_SPEED
-		$CollisionShape3D.scale = Vector3(1, 1, 1)
-	
+	#Sliding (need to make it move forward constantly)
+	#if Input.is_action_pressed("ui_crouch") && is_sprinting :
+		#$CollisionShape3D.scale = Vector3(1, 0.3, 1)
+		#speed = SLIDE_SPEED
+		#is_sliding = true
+	#if Input.is_action_just_released("ui_crouch") && is_sliding:
+		#is_sliding = false
+		#speed = WALK_SPEED
+		#$CollisionShape3D.scale = Vector3(1, 1, 1)
 	#Movement Inputs
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
