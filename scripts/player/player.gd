@@ -22,6 +22,9 @@ const SENSITIVITY = 0.004
 @onready var camera_3d: Camera3D = %Camera3D
 @onready var player: CharacterBody3D = $"."
 
+#States
+enum {WALK, SPRINT, CROTCH, SLIDE, JUMP}
+var state
 
 #Head bobbing via Sinewave
 const BOB_FREQ = 2.0
@@ -42,7 +45,22 @@ var t_bob = 0.0
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	state = WALK
 
+func _physics_process(delta: float) -> void:
+	print(state)
+	match state:
+		WALK:
+			#WalkState()
+			pass
+		SPRINT:
+			pass
+		CROTCH:
+			pass
+		SLIDE:
+			pass
+		JUMP:
+			StateJump()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -52,7 +70,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 
 func _physics_process(delta: float) -> void:
-	print(speed)
+	
 	# Handle jump.
 	if !is_on_floor():
 		velocity += get_gravity() * delta
@@ -61,16 +79,16 @@ func _physics_process(delta: float) -> void:
 		jump_available = true
 		jump_count = max_jumps
 		
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		_jump()
+	if Input.is_action_just_pressed("ui_jump") and is_on_floor():
+		StateJump()
 		
-	if is_on_wall_only() && Input.is_action_just_pressed("ui_accept"):
+	if is_on_wall_only() && Input.is_action_just_pressed("ui_jump"):
 		print("wall jump")
 	
 	#Sprinting
 	if Input.is_action_pressed("ui_sprint") && is_on_floor():
-		speed = SPRINT_SPEED
-		is_sprinting = true
+		state = SPRINT
+
 	else:
 		speed = WALK_SPEED
 		is_sprinting = false
@@ -121,9 +139,21 @@ func _headbob(time) -> Vector3:
 	return pos
 
 
-func _jump():
+func StateJump():
 	if jump_count != 0:
 		velocity.y = JUMP_VELOCITY
 		jump_count -= 1
 	else:
 		jump_available = false
+		if is_on_floor():
+			state = WALK
+
+
+func SprintState():
+		speed = SPRINT_SPEED
+		is_sprinting = true # could remove and use states as check
+		if Input.is_action_just_released("ui_sprint"):
+			state = WALK
+			#need to add lerp to walk speed
+		if Input.is_action_just_released("ui_jump"):
+			state = JUMP
