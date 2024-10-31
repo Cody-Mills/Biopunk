@@ -77,7 +77,7 @@ func WalkState(delta):
 			velocity.x = direction.x * speed
 			velocity.z = direction.z * speed
 		else:
-			#stopping mid air
+			#Stopping mid air
 			velocity.x = lerp(velocity.x, direction.x * speed, delta * 7.0)
 			velocity.z = lerp(velocity.z, direction.z * speed, delta * 7.0)
 	else:#need to add bhopping
@@ -130,7 +130,7 @@ func JumpState(delta):
 			print("wall jump")
 
 func SprintState():
-	jump_available
+	jump_available = true
 	speed = SPRINT_SPEED
 	if Input.is_action_just_released("ui_sprint"):
 		#Adds a slowing down effect
