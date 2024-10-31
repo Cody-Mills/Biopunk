@@ -53,7 +53,7 @@ func _physics_process(delta: float) -> void:
 		SPRINT:
 			SprintState()
 		CROTCH:
-			CrotchState()
+			CrouchState()
 		SLIDE:
 			SlideState()
 		JUMP:
@@ -130,16 +130,19 @@ func JumpState(delta):
 			print("wall jump")
 
 func SprintState():
-		speed = SPRINT_SPEED
-		if Input.is_action_just_released("ui_sprint"):
-			state = WALK
-			#need to add lerp to walk speed
-		if Input.is_action_just_pressed("ui_jump"):
-			state = JUMP
-		if Input.is_action_just_pressed("ui_crouch"):
-			state = SLIDE
+	jump_available
+	speed = SPRINT_SPEED
+	if Input.is_action_just_released("ui_sprint"):
+		#Adds a slowing down effect
+		lerp(speed, WALK_SPEED, 0.1)
+		state = WALK
+	if Input.is_action_just_pressed("ui_jump"):
+		state = JUMP
+	if Input.is_action_just_pressed("ui_crouch"):
+		state = SLIDE
 
 func SlideState():
+	jump_available = true
 	print("slide")
 		#Sliding (need to make it move forward constantly)
 	#if Input.is_action_pressed("ui_crouch") && is_sprinting :
@@ -152,7 +155,8 @@ func SlideState():
 		#$CollisionShape3D.scale = Vector3(1, 1, 1)
 	#Movement Inputs
 	
-func CrotchState():
+func CrouchState():
+	jump_available = true
 	$CollisionShape3D.scale = Vector3(1, 0.5, 1)
 	speed = CROUCH_SPEED
 	
