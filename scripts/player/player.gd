@@ -1,11 +1,13 @@
 extends CharacterBody3D
 
 #MovementSpeed
-var speed
-const SPRINT_SPEED = WALK_SPEED * 1.4
-const WALK_SPEED = 5.0
-const CROUCH_SPEED = WALK_SPEED * 0.6
-const SLIDE_SPEED = WALK_SPEED * 2
+var speed = 5.0
+var sprintSpeed = speed * 1.4
+var crouchSpeed = speed * 0.6
+var slideSpeed = speed * 2
+var acceleration = 0.1
+#Doubles as the is sprinting check aswell as sliding
+var can_slide : bool = false
 var is_sliding : bool = false
 
 #Jumping
@@ -21,7 +23,7 @@ const SENSITIVITY = 0.004
 @onready var player: CharacterBody3D = $"."
 
 #States
-enum {WALK, SPRINT, CROTCH, SLIDE, JUMP, AIR}
+enum {MOVE, CROTCH, SLIDE, JUMP, AIR}
 var state
 
 #Head bobbing via Sinewave
@@ -43,15 +45,13 @@ var t_bob = 0.0
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	state = WALK
+	state = MOVE
 
 func _physics_process(delta: float) -> void:
-	print(state)
+	print(speed)
 	match state:
-		WALK:
-			WalkState(delta)
-		SPRINT:
-			SprintState()
+		MOVE:
+			MoveState(delta)
 		CROTCH:
 			CrouchState()
 		SLIDE:
@@ -66,14 +66,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_3d.rotation.x = clamp(camera_3d.rotation.x, deg_to_rad(-40), deg_to_rad(60))
 		
 
-func WalkState(delta):
-	speed = WALK_SPEED
+func MoveState(delta):
 	jump_available = true
 	jump_count = max_jumps
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	#Walking
 	if is_on_floor():
-		if direction:
+		if direction && !Input.is_action_pressed("ui_sprint"):
+			lerp((speed * sprintSpeed), speed, acceleration)
+			can_slide = false
+			speed = speed
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
+		if direction && Input.is_action_pressed("ui_sprint"):
+			lerp(speed, (speed * sprintSpeed), acceleration)
+			speed = sprintSpeed
+			can_slide = true
 			velocity.x = direction.x * speed
 			velocity.z = direction.z * speed
 		else:
@@ -87,16 +96,20 @@ func WalkState(delta):
 	#Head Bobbing
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera_3d.transform.origin = _headbob(t_bob)
+		
+	if Input.is_action_just_released("ui_sprint"):
+		#Adds a slowing down effect
+		lerp((speed * sprintSpeed), speed, acceleration)
+		can_slide = false
 	
 	#Temp state switch checks, need to add events
 	if Input.is_action_just_pressed("ui_jump") and jump_available:
 		state = JUMP
 		
-	if Input.is_action_pressed("ui_crouch"): #maybe add is not sprinting
+	if Input.is_action_pressed("ui_crouch") && !can_slide:
 		state = CROTCH
-		
-	if Input.is_action_pressed("ui_sprint"):
-		state = SPRINT
+	if Input.is_action_pressed("ui_crouch") && can_slide:
+		state = SLIDE
 	
 	move_and_slide()
 	
@@ -105,6 +118,7 @@ func _headbob(time) -> Vector3:
 	var pos  = Vector3.ZERO
 	pos.y = sin(time * BOB_FREQ) * BOB_AMP
 	pos.x = sin(time * BOB_FREQ / 2) * BOB_AMP
+	#could add extra bobs while sprinting
 	return pos
 
 
@@ -116,10 +130,7 @@ func JumpState(delta):
 		jump_available = false
 		#Land on floor back to walking state
 		if is_on_floor():
-			state = WALK
-		#To continue running after landing
-		if is_on_floor() && Input.is_action_just_pressed("ui_sprint"):
-			state = SPRINT
+			state = MOVE
 		#To Jump into a slide
 		if is_on_floor() && Input.is_action_just_pressed("ui_crotch"):
 			state = SLIDE
@@ -128,18 +139,6 @@ func JumpState(delta):
 			jump_available = false
 		if is_on_wall_only() && Input.is_action_just_pressed("ui_jump"):
 			print("wall jump")
-
-func SprintState():
-	jump_available = true
-	speed = SPRINT_SPEED
-	if Input.is_action_just_released("ui_sprint"):
-		#Adds a slowing down effect
-		lerp(speed, WALK_SPEED, 0.1)
-		state = WALK
-	if Input.is_action_just_pressed("ui_jump"):
-		state = JUMP
-	if Input.is_action_just_pressed("ui_crouch"):
-		state = SLIDE
 
 func SlideState():
 	jump_available = true
@@ -158,9 +157,8 @@ func SlideState():
 func CrouchState():
 	jump_available = true
 	$CollisionShape3D.scale = Vector3(1, 0.5, 1)
-	speed = CROUCH_SPEED
+	speed = crouchSpeed
 	
 	if Input.is_action_just_released("ui_crouch"):
 		$CollisionShape3D.scale = Vector3(1, 1, 1)
-		speed = WALK_SPEED
-		state = WALK
+		speed = speed
