@@ -3,10 +3,8 @@ extends CharacterBody3D
 #MovementSpeed
 var speed
 const SPRINT_SPEED = WALK_SPEED * 1.4
-var is_sprinting : bool = false
 const WALK_SPEED = 5.0
 const CROUCH_SPEED = WALK_SPEED * 0.6
-var is_crouching : bool = false
 const SLIDE_SPEED = WALK_SPEED * 2
 var is_sliding : bool = false
 
@@ -23,7 +21,7 @@ const SENSITIVITY = 0.004
 @onready var player: CharacterBody3D = $"."
 
 #States
-enum {WALK, SPRINT, CROTCH, SLIDE, JUMP}
+enum {WALK, SPRINT, CROTCH, SLIDE, JUMP, AIR}
 var state
 
 #Head bobbing via Sinewave
@@ -51,16 +49,15 @@ func _physics_process(delta: float) -> void:
 	print(state)
 	match state:
 		WALK:
-			#WalkState()
-			pass
+			WalkState(delta)
 		SPRINT:
-			pass
+			SprintState()
 		CROTCH:
-			pass
+			CrotchState()
 		SLIDE:
-			pass
+			SlideState()
 		JUMP:
-			StateJump()
+			JumpState(delta)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -69,48 +66,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_3d.rotation.x = clamp(camera_3d.rotation.x, deg_to_rad(-40), deg_to_rad(60))
 		
 
-func _physics_process(delta: float) -> void:
-	
-	# Handle jump.
-	if !is_on_floor():
-		velocity += get_gravity() * delta
-		jump_available = false
-	if is_on_floor():
-		jump_available = true
-		jump_count = max_jumps
-		
-	if Input.is_action_just_pressed("ui_jump") and is_on_floor():
-		StateJump()
-		
-	if is_on_wall_only() && Input.is_action_just_pressed("ui_jump"):
-		print("wall jump")
-	
-	#Sprinting
-	if Input.is_action_pressed("ui_sprint") && is_on_floor():
-		state = SPRINT
-
-	else:
-		speed = WALK_SPEED
-		is_sprinting = false
-	#Crouching
-	if Input.is_action_pressed("ui_crouch") && !is_sprinting:
-		$CollisionShape3D.scale = Vector3(1, 0.5, 1)
-		speed = CROUCH_SPEED
-		is_crouching = true
-	if Input.is_action_just_released("ui_crouch"):
-		$CollisionShape3D.scale = Vector3(1, 1, 1)
-		speed = WALK_SPEED
-		is_crouching = false
-	#Sliding (need to make it move forward constantly)
-	#if Input.is_action_pressed("ui_crouch") && is_sprinting :
-		#$CollisionShape3D.scale = Vector3(1, 0.3, 1)
-		#speed = SLIDE_SPEED
-		#is_sliding = true
-	#if Input.is_action_just_released("ui_crouch") && is_sliding:
-		#is_sliding = false
-		#speed = WALK_SPEED
-		#$CollisionShape3D.scale = Vector3(1, 1, 1)
-	#Movement Inputs
+func WalkState(delta):
+	speed = WALK_SPEED
+	jump_available = true
+	jump_count = max_jumps
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if is_on_floor():
@@ -129,6 +88,16 @@ func _physics_process(delta: float) -> void:
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera_3d.transform.origin = _headbob(t_bob)
 	
+	#Temp state switch checks, need to add events
+	if Input.is_action_just_pressed("ui_jump") and jump_available:
+		state = JUMP
+		
+	if Input.is_action_pressed("ui_crouch"): #maybe add is not sprinting
+		state = CROTCH
+		
+	if Input.is_action_pressed("ui_sprint"):
+		state = SPRINT
+	
 	move_and_slide()
 	
 
@@ -139,21 +108,55 @@ func _headbob(time) -> Vector3:
 	return pos
 
 
-func StateJump():
+func JumpState(delta):
 	if jump_count != 0:
 		velocity.y = JUMP_VELOCITY
 		jump_count -= 1
 	else:
 		jump_available = false
+		#Land on floor back to walking state
 		if is_on_floor():
 			state = WALK
-
+		#To continue running after landing
+		if is_on_floor() && Input.is_action_just_pressed("ui_sprint"):
+			state = SPRINT
+		#To Jump into a slide
+		if is_on_floor() && Input.is_action_just_pressed("ui_crotch"):
+			state = SLIDE
+		if !is_on_floor():
+			velocity += get_gravity() * delta
+			jump_available = false
+		if is_on_wall_only() && Input.is_action_just_pressed("ui_jump"):
+			print("wall jump")
 
 func SprintState():
 		speed = SPRINT_SPEED
-		is_sprinting = true # could remove and use states as check
 		if Input.is_action_just_released("ui_sprint"):
 			state = WALK
 			#need to add lerp to walk speed
-		if Input.is_action_just_released("ui_jump"):
+		if Input.is_action_just_pressed("ui_jump"):
 			state = JUMP
+		if Input.is_action_just_pressed("ui_crouch"):
+			state = SLIDE
+
+func SlideState():
+	print("slide")
+		#Sliding (need to make it move forward constantly)
+	#if Input.is_action_pressed("ui_crouch") && is_sprinting :
+		#$CollisionShape3D.scale = Vector3(1, 0.3, 1)
+		#speed = SLIDE_SPEED
+		#is_sliding = true
+	#if Input.is_action_just_released("ui_crouch") && is_sliding:
+		#is_sliding = false
+		#speed = WALK_SPEED
+		#$CollisionShape3D.scale = Vector3(1, 1, 1)
+	#Movement Inputs
+	
+func CrotchState():
+	$CollisionShape3D.scale = Vector3(1, 0.5, 1)
+	speed = CROUCH_SPEED
+	
+	if Input.is_action_just_released("ui_crouch"):
+		$CollisionShape3D.scale = Vector3(1, 1, 1)
+		speed = WALK_SPEED
+		state = WALK
