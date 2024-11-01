@@ -4,7 +4,7 @@ extends CharacterBody3D
 var speed = 5.0
 var sprintSpeed = speed * 1.4
 var crouchSpeed = speed * 0.6
-var slideSpeed = speed * 2
+var slideSpeed = speed * 2.0
 var acceleration = 0.1
 #Doubles as the is sprinting check aswell as sliding
 var can_slide : bool = false
@@ -32,22 +32,11 @@ const BOB_AMP = 0.08
 var t_bob = 0.0
 
 
-#Wanted features 
-#-wall jumping(different basis than normal jumping cuz instead of jumping up i wanna kick off of 
-# a wall and be send the other direction (need a wall made for jumping off of)
-# could either do it by making a actual wall jump or by kicking, if kicking i could use the get function
-# method go recive how much knockback there should be so i can use it for enemies, walls and jumping walls
-#-Sliding
-#-Bunny Hopping
-
-
-
-
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	state = MOVE
 
-func _physics_process(delta: float) -> void:
+func _process(delta: float) -> void:
 	print(speed)
 	match state:
 		MOVE:
@@ -64,7 +53,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		head.rotate_y(-event.relative.x * SENSITIVITY)
 		camera_3d.rotate_x(-event.relative.y * SENSITIVITY)
 		camera_3d.rotation.x = clamp(camera_3d.rotation.x, deg_to_rad(-40), deg_to_rad(60))
-		
 
 func MoveState(delta):
 	jump_available = true
@@ -73,18 +61,12 @@ func MoveState(delta):
 	var direction := (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	#Walking
 	if is_on_floor():
-		if direction && !Input.is_action_pressed("ui_sprint"):
+		if direction :
 			lerp((speed * sprintSpeed), speed, acceleration)
 			can_slide = false
 			speed = speed
-			velocity.x = direction.x * speed
-			velocity.z = direction.z * speed
-		if direction && Input.is_action_pressed("ui_sprint"):
-			lerp(speed, (speed * sprintSpeed), acceleration)
-			speed = sprintSpeed
-			can_slide = true
-			velocity.x = direction.x * speed
-			velocity.z = direction.z * speed
+			velocity.x = direction.x * speed * 10 
+			velocity.z = direction.z * speed * 10
 		else:
 			#Stopping mid air
 			velocity.x = lerp(velocity.x, direction.x * speed, delta * 7.0)
@@ -121,8 +103,8 @@ func _headbob(time) -> Vector3:
 	#could add extra bobs while sprinting
 	return pos
 
-
 func JumpState(delta):
+	print("jump")
 	if jump_count != 0:
 		velocity.y = JUMP_VELOCITY
 		jump_count -= 1
@@ -155,6 +137,7 @@ func SlideState():
 	#Movement Inputs
 	
 func CrouchState():
+	print("crouch")
 	jump_available = true
 	$CollisionShape3D.scale = Vector3(1, 0.5, 1)
 	speed = crouchSpeed
